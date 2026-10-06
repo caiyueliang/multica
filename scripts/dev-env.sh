@@ -342,6 +342,9 @@ rewrite_env_ports() {
   tmp="$(mktemp)"
   sed \
     -e "s|^PORT=.*|PORT=${backend}|" \
+    -e "s|^BACKEND_PORT=.*|BACKEND_PORT=${backend}|" \
+    -e "s|^API_PORT=.*|API_PORT=${backend}|" \
+    -e "s|^SERVER_PORT=.*|SERVER_PORT=${backend}|" \
     -e "s|^FRONTEND_PORT=.*|FRONTEND_PORT=${frontend}|" \
     -e "s|^FRONTEND_ORIGIN=.*|FRONTEND_ORIGIN=http://localhost:${frontend}|" \
     -e "s|^POSTGRES_DB=.*|POSTGRES_DB=${db}|" \
