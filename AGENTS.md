@@ -125,3 +125,16 @@ Workspace-scoped queries filter by `workspace_id`; membership gates access and `
 - Do not add internal compatibility shims, dual writes, fallback paths, or legacy adapters unless requested. This does not relax API response compatibility above.
 - New global pre-workspace routes use a single word or `/{noun}/{verb}`, not hyphenated root names. Update `server/internal/handler/reserved_slugs.json`, run `pnpm generate:reserved-slugs`, and commit `packages/core/paths/reserved-slugs.ts` when changing reserved slugs.
 - Use atomic conventional commits and the repository PR template. For releases, follow [.github/RELEASING.md](.github/RELEASING.md); default to a patch bump unless specified otherwise.
+
+## 定制化开发规则
+
+本项目可能需要在跟进 Multica 上游更新的同时维护团队定制。实现定制需求时，先判断能否使用现有配置、公开 API/CLI、插件或外部集成；只有这些方式无法满足需求时，才修改核心代码。
+
+- 定制优先放在可独立构建和部署的插件、集成服务或部署配置中。插件使用 `packages/plugin-sdk` 提供的能力，并参考 `examples/plugins/`；插件当前只开放其 SDK 和清单声明的能力，不能假定它可以任意替换核心页面、服务或数据流程。
+- 可在仓库根目录 `ljw/` 下存放团队自有的插件源码、集成服务、部署文件和说明文档。该目录用于组织独立定制，不是自动生效的覆盖层：运行时、Go 构建和前端打包不会因为目录结构相似就自动加载其中的实现。
+- 不要仅为模仿上游源码而在 `ljw/` 下复制一份平行目录，也不要假定 Go 或 TypeScript 实现可以通过“继承/重写”自动替换原实现。需要替换行为时，必须先确认项目存在可用的接口、注册点、依赖注入或构建入口；否则应明确标记为核心改动，并在上游代码中提供尽可能小、用途明确的接入点。
+- 必须修改核心时，将改动限制在满足需求所需的最小范围；优先新增窄接口、配置项或插件 SDK 能力，再把团队实现放在独立目录。不要复制整个上游模块后长期维护分叉版本，不要把定制逻辑散布到无关调用方，也不要增加未经需求要求的兼容层或双写。
+- 维护定制分支时，保留官方仓库为上游 remote；将团队定制做成主题清楚、彼此独立的提交，避免将定制与大规模重构混在一起。同步上游时先合入上游变更，再逐个检查、重放或调整定制提交，并记录需要人工处理的冲突。
+- 每项定制记录其目的、所属位置、依赖的上游接入点、配置/部署方式及验证命令。若某个定制依赖上游实现细节而非稳定接口，应在说明中指出，以便升级时优先复查。
+- 不得覆盖、清理或重置工作区中已有的用户改动来准备定制或同步上游；先检查 `git status`，并保持无关改动原样。
+- 该定制化开发规则不满足或者覆盖实际的定制化开发的情况下，需要主动和用户沟通情况，并且提出优化方案，得到用户的同意后，再更新本规则的内容。
