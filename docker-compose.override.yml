@@ -1,0 +1,9 @@
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - multica_dev_pgdata:/var/lib/postgresql/data
+
+volumes:
+  multica_dev_pgdata:
